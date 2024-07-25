@@ -1,9 +1,7 @@
-// js/dashboard.js
-
 function showIdentification() {
     const content = `
         <h2 class="h4">Identificación</h2>
-        <form id="identification-form">
+        <form id="identification-form" method="POST" action="/identificaciones">
             <div class="form-group">
                 <label for="facultad">Facultad</label>
                 <input type="text" class="form-control" id="facultad" name="facultad" placeholder="Facultad">
@@ -38,18 +36,73 @@ function showIdentification() {
             </div>
             <button type="button" class="btn btn-secondary" onclick="goBack()">Volver</button>
             <button type="button" class="btn btn-primary" onclick="showCreditType()">Siguiente</button>
-            <button type="button" class="btn btn-primary" onclick="saveIdentification()">Guardar</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
         </form>
     `;
     document.getElementById('content-section').innerHTML = content;
+
+    document.getElementById('identification-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const form = event.target;
+
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'Accept': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Identificación guardada exitosamente.');
+                form.reset();
+            } else {
+                alert('Error al guardar la identificación.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
 }
 
-function showManageIdentification(){
-    const content = `
-    <h2 class="h4"> Gestionar identificación</h2>
-    `;
-    document.getElementById('content-section').innerHTML = content;
+
+function showManageIdentification() {
+    fetch('/identificaciones')
+        .then(response => response.json())
+        .then(data => {
+            const contentSection = document.getElementById('content-section');
+            let content = '<h2 class="h4">Gestionar Identificación</h2>';
+            
+            if (data.length > 0) {
+                content += '<table class="table table-striped">';
+                content += '<thead><tr><th>Facultad</th><th>Programa</th><th>Nombre del Curso</th><th>Elaborado Por</th><th>Fecha Última Actualización</th><th>Fecha Aprobación</th><th>Idioma</th><th>Código</th></tr></thead>';
+                content += '<tbody>';
+                
+                data.forEach(item => {
+                    content += `<tr>
+                        <td>${item.facultad}</td>
+                        <td>${item.programa}</td>
+                        <td>${item.nombre_del_curso}</td>
+                        <td>${item.elaborado_por}</td>
+                        <td>${item.fecha_ultima_actualizacion}</td>
+                        <td>${item.fecha_aprobacion_comite_curricular}</td>
+                        <td>${item.idioma}</td>
+                        <td>${item.codigo}</td>
+                    </tr>`;
+                });
+
+                content += '</tbody></table>';
+            } else {
+                content += '<p>No hay identificaciones registradas.</p>';
+            }
+
+            contentSection.innerHTML = content;
+        })
+        .catch(error => console.error('Error:', error));
 }
+
+
+
 
 function showCreditType() {
     const content = `
@@ -155,32 +208,6 @@ function showDashboard() {
     document.getElementById('content-section').innerHTML = content;
 }
 
-function showAlert(){
+function showAlert() {
     alert("Guardado correctamente");
-}
-
-function saveIdentification() {
-    // Obtener los datos del formulario
-    const formData = new FormData(document.getElementById('identification-form'));
-
-    // Enviar los datos al servidor usando Fetch API
-    fetch('/identificaciones', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Identificación guardada exitosamente.');
-            // Opcional: Redirigir o actualizar la vista
-        } else {
-            alert('Hubo un error al guardar la identificación.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
 }

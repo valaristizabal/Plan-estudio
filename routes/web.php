@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\IdentificacionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -27,6 +28,9 @@ Route::get('/identificacion', function () {
     return view('identificacion');
 });
 
+Route::post('/identificaciones', [IdentificacionController::class, 'store']);
+
+Route::get('/identificaciones', [IdentificacionController::class, 'index']);
 
 
 // Rutas para autenticación con Google utilizando namespace absoluto

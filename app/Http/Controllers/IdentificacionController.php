@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Identificacion; // Asegúrate de que el nombre del modelo sea correcto
 use Illuminate\Http\Request;
+use App\Models\Identificacion;
 
 class IdentificacionController extends Controller
 {
-
-    // Almacenar un nuevo registro
     public function store(Request $request)
     {
-        // Validar los datos del formulario
+        // Validar los datos
         $request->validate([
             'facultad' => 'required|string|max:255',
             'programa' => 'required|string|max:255',
@@ -35,7 +33,15 @@ class IdentificacionController extends Controller
             'codigo' => $request->input('codigo'),
         ]);
 
-        // Retornar una respuesta JSON
         return response()->json(['success' => true]);
     }
+
+    public function index(){
+        // Obtener todos los registros
+        $identificaciones = Identificacion::all();
+
+        // Devolver los registros como JSON
+        return response()->json($identificaciones);
+    }
+
 }
